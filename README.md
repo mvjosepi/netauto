@@ -123,8 +123,10 @@ interface summary per device. Runs in parallel using Nornir threads.
 Fetches running-config from all devices and saves them as
 timestamped `.cfg` files under `backups/`.
 
-✅ CAT8KV   → backups/cat8kv_20260530_150134.cfg (246 lines)
-✅ NEXUS9K  → backups/nexus9k_20260530_150134.cfg (255 lines)
+```
+✅ CAT8KV   > backups/cat8kv_20260530_150134.cfg (246 lines)
+✅ NEXUS9K  > backups/nexus9k_20260530_150134.cfg (255 lines)
+```
 
 ### change_detect.py
 Compares current running-config against the latest backup using
