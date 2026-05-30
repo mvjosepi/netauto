@@ -1,4 +1,4 @@
-# NetAuto — Multi-Vendor Network Automation Toolkit
+# NetAuto - Multi-Vendor Network Automation Toolkit
 
 A Python-based network automation toolkit for monitoring, backup, change detection,
 and inventory reporting across multi-vendor Cisco environments.
@@ -133,11 +133,13 @@ Compares current running-config against the latest backup using
 unified diff. Highlights added lines in green and removed lines
 in red. Saves a new backup when changes are found.
 
+```
 ⚠️  CHANGES DETECTED — +4 lines / -0 lines
 +interface Loopback99
 
 description NETAUTO-TEST-CHANGE
 ip address 10.99.99.1 255.255.255.255
+```
 
 ### inventory_report.py
 Generates a full structured report per device including:
