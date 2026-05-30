@@ -30,7 +30,22 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 
 ## Project Structure
 
-![Project Structure](assets/project_structure.png)
+```
+netauto/
+├── inventory/
+│   ├── hosts.yml
+│   ├── groups.yml
+│   └── defaults.yml
+├── scripts/
+│   ├── monitor.py              ✅ real-time interface monitoring
+│   ├── config_backup.py        ✅ automated config backup
+│   ├── change_detect.py        ✅ diff-based change detection
+│   ├── push_change.py          ✅ config push
+│   ├── inventory_report.py     ✅ full inventory report
+│   └── restconf_interfaces.py  ✅ RESTCONF GET + PATCH via API
+├── backups/                    ✅ timestamped config snapshots
+└── reports/                    ✅ timestamped inventory reports
+```
 
 ---
 
