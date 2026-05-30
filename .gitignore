@@ -1,0 +1,7 @@
+.venv/
+backups/
+reports/
+__pycache__/
+*.pyc
+.python-version
+nornir.log

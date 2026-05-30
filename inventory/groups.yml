@@ -1,0 +1,8 @@
+cisco_iosxe:
+  platform: cisco_ios
+
+cisco_iosxr:
+  platform: cisco_xr
+
+cisco_nxos:
+  platform: cisco_nxos
