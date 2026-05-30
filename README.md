@@ -109,7 +109,7 @@ interface summary per device. Runs in parallel using Nornir threads.
 │   ✅ Loopback0                 10.0.0.1
 │  DOWN (2)
 │   ❌ GigabitEthernet2          unassigned
-└────────────────────────────────────────
+└──────────────────
 
 ### config_backup.py
 Fetches running-config from all devices and saves them as
@@ -152,13 +152,13 @@ Scripts were developed and tested against the
 Access requires Cisco DevNet account and VPN connection
 via OpenConnect or Cisco AnyConnect.
 
-→ [devnetsandbox.cisco.com](https://devnetsandbox.cisco.com)
+- [devnetsandbox.cisco.com](https://devnetsandbox.cisco.com)
 
 ---
 
 ## Author
 
-**Marcus** — Senior Network & Security Engineer
+**Marcus** - Senior Network & Security Engineer
 > Building automation tools for multi-vendor environments.
 > Focused on network operations, cybersecurity, and Python-based infrastructure tooling.
 
