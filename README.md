@@ -30,23 +30,7 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 
 ## Project Structure
 
-netauto/
-├── inventory/
-│   ├── hosts.yml            # Device inventory with credentials
-│   ├── groups.yml           # Platform group definitions
-│   └── defaults.yml        # Global defaults
-├── scripts/
-│   ├── monitor.py           # Real-time interface monitoring
-│   ├── config_backup.py     # Automated running-config backup
-│   ├── change_detect.py     # Diff-based change detection
-│   ├── push_change.py       # Config push example
-│   └── inventory_report.py  # Full inventory report generator
-├── backups/                 # Timestamped config snapshots (git-ignored)
-└── reports/                 # Timestamped inventory reports (git-ignored)
-
 ![Project Structure](assets/project_structure.png)
-
----
 
 ---
 
