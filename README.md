@@ -1,11 +1,16 @@
-# NetAuto - Multi-Vendor Network Automation Toolkit
+"""# NetAuto - Multi-Vendor Network Automation Toolkit
+
+![Version](https://img.shields.io/badge/version-v1.1.0-blue)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-IOS%20XE%20%7C%20NX--OS-lightgrey)
 
 A Python-based network automation toolkit for monitoring, backup, change detection,
 and inventory reporting across multi-vendor Cisco environments.
 
 Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Python.
 
----
+---"""
 
 ## Stack
 
