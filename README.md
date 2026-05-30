@@ -45,7 +45,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### 2. Clone and set up the environment
 
 ```bash
-git clone https://github.com/<your-username>/netauto.git
+git clone https://github.com/mvjosepi/netauto.git
 cd netauto
 
 uv venv --python 3.11 --seed
