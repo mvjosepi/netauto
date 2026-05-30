@@ -103,13 +103,13 @@ python scripts/inventory_report.py
 Polls all devices every 30 seconds and displays a clean UP/DOWN
 interface summary per device. Runs in parallel using Nornir threads.
 
-┌─ CAT8KV
-│  UP   (6)
-│   ✅ GigabitEthernet1          10.10.20.48
-│   ✅ Loopback0                 10.0.0.1
-│  DOWN (2)
-│   ❌ GigabitEthernet2          unassigned
-└──────────────────--------------
+─ CAT8KV
+  UP   (6)
+   ✅ GigabitEthernet1          10.10.20.48
+   ✅ Loopback0                 10.0.0.1
+  DOWN (2)
+   ❌ GigabitEthernet2          unassigned
+
 
 ### config_backup.py
 Fetches running-config from all devices and saves them as
