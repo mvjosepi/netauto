@@ -25,6 +25,7 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 | Cisco Catalyst 8000v | IOS XE 17.x | ✅ Full support |
 | Cisco Nexus 9000v | NX-OS 9.x | ✅ Full support |
 | Cisco IOS XRv | IOS XR | ⚠️ ssh-dss limitation |
+| Cisco Catalyst 8000v | IOS XE 17.x | ✅ Full support (SSH + RESTCONF) |
 
 ---
 
@@ -150,6 +151,48 @@ Generates a full structured report per device including:
 - CDP neighbor table
 
 Report is printed to screen and saved to `reports/`.
+
+
+### restconf_interfaces.py
+Queries the Catalyst 8000v directly via RESTCONF API (HTTP+JSON)
+using YANG data models — no SSH required. Demonstrates the modern
+API-first approach to network automation.
+
+Covers:
+- GET hostname
+- GET all interfaces with type and status
+- GET single interface detail with IPv4 address
+- GET static routing table
+- PATCH interface description — write operation via REST API
+
+```
+=================================================================
+  RESTCONF QUERY — CAT8Kv
+  2026-05-30 18:14:10
+=================================================================
+📍 HOSTNAME
+  cat8000v
+📡 INTERFACES
+─────────────────────────────────────────────────────────────────
+  NAME                                TYPE                 STATUS
+─────────────────────────────────────────────────────────────────
+  GigabitEthernet1                    ethernetCsmacd       ✅ enabled
+  GigabitEthernet2                    ethernetCsmacd       ❌ disabled
+  Loopback99                          softwareLoopback     ✅ enabled
+─────────────────────────────────────────────────────────────────
+  Total: 8 interfaces
+🗺️  STATIC ROUTES
+─────────────────────────────────────────────────────────────────
+  PREFIX               MASK                 NEXT-HOP
+─────────────────────────────────────────────────────────────────
+  0.0.0.0              0.0.0.0              10.10.20.254
+─────────────────────────────────────────────────────────────────
+✏️  PATCH — Updating Loopback99 description via RESTCONF API
+  ✅ Loopback99 description updated successfully (HTTP 204)
+=================================================================
+  RESTCONF QUERY COMPLETE
+=================================================================
+```
 
 ---
 
