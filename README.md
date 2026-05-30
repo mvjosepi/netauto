@@ -22,7 +22,6 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 
 | Device | OS | Status |
 |---|---|---|
-| Cisco Catalyst 8000v | IOS XE 17.x | ✅ Full support |
 | Cisco Nexus 9000v | NX-OS 9.x | ✅ Full support |
 | Cisco IOS XRv | IOS XR | ⚠️ ssh-dss limitation |
 | Cisco Catalyst 8000v | IOS XE 17.x | ✅ Full support (SSH + RESTCONF) |
@@ -155,7 +154,7 @@ Report is printed to screen and saved to `reports/`.
 
 ### restconf_interfaces.py
 Queries the Catalyst 8000v directly via RESTCONF API (HTTP+JSON)
-using YANG data models — no SSH required. Demonstrates the modern
+using YANG data models - no SSH required. Demonstrates the modern
 API-first approach to network automation.
 
 Covers:
@@ -163,7 +162,7 @@ Covers:
 - GET all interfaces with type and status
 - GET single interface detail with IPv4 address
 - GET static routing table
-- PATCH interface description — write operation via REST API
+- PATCH interface description - write operation via REST API
 
 ```
 =================================================================
