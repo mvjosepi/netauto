@@ -159,7 +159,8 @@ via OpenConnect or Cisco AnyConnect.
 ## Author
 
 **Marcus** — Senior Network & Security Engineer
-Transitioning toward NetDevOps and Cybersecurity
+> Building automation tools for multi-vendor environments.
+> Focused on network operations, cybersecurity, and Python-based infrastructure tooling.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://linkedin.com/in/mborile)
 
