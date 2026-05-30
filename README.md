@@ -44,6 +44,8 @@ netauto/
 ├── backups/                 # Timestamped config snapshots (git-ignored)
 └── reports/                 # Timestamped inventory reports (git-ignored)
 
+![Project Structure](assets/project_structure.png)
+
 ---
 
 ---
