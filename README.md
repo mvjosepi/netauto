@@ -15,6 +15,7 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 | Nornir 3.x | Multi-device orchestration |
 | Netmiko 4.x | SSH connectivity |
 | uv | Package management |
+| requests | RESTCONF API calls |
 
 ---
 
@@ -70,6 +71,7 @@ source .venv/bin/activate        # Linux/macOS
 uv pip install "setuptools==69.5.1"
 uv pip install netmiko
 uv pip install nornir nornir-netmiko nornir-utils
+uv pip install requests
 ```
 
 ### 3. Configure your inventory
@@ -108,6 +110,9 @@ python scripts/change_detect.py
 
 # Generate full inventory report
 python scripts/inventory_report.py
+
+# Queries the Catalyst 8000v directly via RESTCONF API (HTTP+JSON)
+python scripts/restconf_interfaces.py
 ```
 
 ---
