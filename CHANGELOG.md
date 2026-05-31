@@ -4,9 +4,14 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
-## [v1.2.0] - Upcoming
-### Planned
-- NETCONF script — XML-based configuration and state retrieval via ncclient
+## [v1.2.0] - 2026-05-30
+### Added
+- `netconf_query.py` — NETCONF support via ncclient + YANG
+  - GET hostname, software version, boot time
+  - GET all interfaces with type and enabled status
+  - EDIT-CONFIG interface description write operation
+  - 275+ YANG models discovered
+- `ncclient` added to dependencies
 - Completes the automation trilogy: SSH → RESTCONF → NETCONF
 
 ---
