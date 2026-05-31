@@ -21,6 +21,7 @@ Built with **Nornir** and **Netmiko** — no Ansible, no YAML playbooks, pure Py
 | Netmiko 4.x | SSH connectivity |
 | uv | Package management |
 | requests | RESTCONF API calls |
+| ncclient | NETCONF sessions |
 
 ---
 
@@ -49,6 +50,7 @@ netauto/
 │   ├── push_change.py          ✅ config push
 │   ├── inventory_report.py     ✅ full inventory report
 │   └── restconf_interfaces.py  ✅ RESTCONF GET + PATCH via API
+│   └── netconf_query.py        ✅ NETCONF GET + EDIT-CONFIG via XML/YANG
 ├── backups/                    ✅ timestamped config snapshots
 └── reports/                    ✅ timestamped inventory reports
 ```
@@ -77,6 +79,7 @@ uv pip install "setuptools==69.5.1"
 uv pip install netmiko
 uv pip install nornir nornir-netmiko nornir-utils
 uv pip install requests
+uv pip install ncclient
 ```
 
 ### 3. Configure your inventory
@@ -118,6 +121,9 @@ python scripts/inventory_report.py
 
 # Queries the Catalyst 8000v directly via RESTCONF API (HTTP+JSON)
 python scripts/restconf_interfaces.py
+
+# Connects to the Catalyst 8000v via NETCONF (port 830) using XML-based
+python scripts/netconf_query.py
 ```
 
 ---
@@ -215,6 +221,45 @@ Covers:
   ✅ Loopback99 description updated successfully (HTTP 204)
 =================================================================
   RESTCONF QUERY COMPLETE
+=================================================================
+```
+
+### netconf_query.py
+Connects to the Catalyst 8000v via NETCONF (port 830) using XML-based
+YANG data models through ncclient. Completes the automation trilogy
+alongside SSH/CLI and RESTCONF.
+
+Covers:
+- GET hostname
+- GET software version and boot time
+- GET all interfaces with type and enabled status
+- EDIT-CONFIG interface description — write operation via NETCONF
+- Discovery of 275+ supported YANG models
+
+```
+=================================================================
+  NETCONF QUERY — CAT8Kv
+  2026-05-30 20:59:24
+=================================================================
+🔌 Connecting via NETCONF (port 830)...
+   Timeout: 30s
+  ✅ NETCONF session established
+📍 HOSTNAME
+  cat8000v
+📦 SOFTWARE VERSION
+  IOS XE Version : Version 17.12.2
+  Boot Time      : 2026-05-30T12:39:08+00:00
+📡 INTERFACES
+  NAME                                TYPE                      ENABLED
+  ───────────────────────────────────────────────────────────────
+  GigabitEthernet1                    ethernetCsmacd            ✅ true
+  GigabitEthernet2                    ethernetCsmacd            ❌ false
+  Loopback99                          softwareLoopback          ✅ true
+  Total: 8 interfaces
+✏️  EDIT-CONFIG — Loopback99 description updated successfully
+📚 SUPPORTED YANG MODELS — 275+ models supported
+=================================================================
+  NETCONF QUERY COMPLETE
 =================================================================
 ```
 
