@@ -43,6 +43,10 @@ netauto/
 │   ├── hosts.yml
 │   ├── groups.yml
 │   └── defaults.yml
+├── commands/
+│   ├── general.yml             ✅ general validation command set
+│   ├── upgrade.yml             ✅ upgrade validation command set
+│   └── routing.yml             ✅ routing change validation command set
 ├── scripts/
 │   ├── monitor.py              ✅ real-time interface monitoring
 │   ├── config_backup.py        ✅ automated config backup
@@ -51,6 +55,9 @@ netauto/
 │   ├── inventory_report.py     ✅ full inventory report
 │   └── restconf_interfaces.py  ✅ RESTCONF GET + PATCH via API
 │   └── netconf_query.py        ✅ NETCONF GET + EDIT-CONFIG via XML/YANG
+│   ├── pre_check.py            ✅ pre-change snapshot
+│   └── post_check.py           ✅ post-change validation + report
+├── snapshots/                  ✅ pre/post snapshots and reports
 ├── backups/                    ✅ timestamped config snapshots
 └── reports/                    ✅ timestamped inventory reports
 ```
@@ -80,6 +87,7 @@ uv pip install netmiko
 uv pip install nornir nornir-netmiko nornir-utils
 uv pip install requests
 uv pip install ncclient
+uv pip install pyyaml
 ```
 
 ### 3. Configure your inventory
@@ -124,6 +132,12 @@ python scripts/restconf_interfaces.py
 
 # Connects to the Catalyst 8000v via NETCONF (port 830) using XML-based
 python scripts/netconf_query.py
+
+# Before the change begins
+python scripts/pre_check.py commands/general.yml CHG001
+
+# After the change ended
+python scripts/post_check.py commands/general.yml CHG001
 ```
 
 ---
@@ -260,6 +274,43 @@ Covers:
 📚 SUPPORTED YANG MODELS — 275+ models supported
 =================================================================
   NETCONF QUERY COMPLETE
+=================================================================
+```
+
+### pre_check.py + post_check.py
+ITSM-style pre/post change validation — captures device state before
+and after a change, compares automatically and produces a LAB PASSED
+or LAB FAILED result per device.
+
+Supports customizable command sets per change type with noise filtering
+via `ignore_patterns` to suppress expected fluctuations like uptime
+counters and CDP holdtimers.
+
+```
+# Before the change
+python scripts/pre_check.py commands/general.yml CHG001
+
+# After the change
+python scripts/post_check.py commands/general.yml CHG001
+```
+
+```
+┌───────────────────────────────────────────────────────────────
+│  DEVICE    : CAT8KV
+│  CHANGE ID : CHG001
+│  PRE TIME  : 2026-06-05 16:44:30
+│  POST TIME : 2026-06-05 16:45:56
+│
+│  ⚠️  COMMAND: show ip interface brief
+│     MISSING LINES:
+│       - Loopback99   unassigned   YES unset  up                    up
+│     NEW LINES:
+│       + Loopback99   unassigned   YES unset  administratively down down
+│
+│  ❌ LAB FAILED — Review differences above
+└───────────────────────────────────────────────────────────────
+=================================================================
+  🏆 OVERALL RESULT : ALL DEVICES PASSED
 =================================================================
 ```
 
