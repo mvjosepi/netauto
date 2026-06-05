@@ -278,7 +278,7 @@ Covers:
 ```
 
 ### pre_check.py + post_check.py
-ITSM-style pre/post change validation — captures device state before
+ITSM-style pre/post change validation - captures device state before
 and after a change, compares automatically and produces a LAB PASSED
 or LAB FAILED result per device.
 
