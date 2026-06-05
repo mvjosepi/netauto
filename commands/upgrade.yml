@@ -1,0 +1,18 @@
+description: "Pre/Post validation for software upgrades"
+commands:
+  - show version
+  - show ip interface brief
+  - show ip route summary
+  - show ip ospf neighbor
+  - show ip bgp summary
+  - show cdp neighbors
+  
+ignore_patterns:
+  - "uptime is"
+  - "Uptime for this"
+  - "Kernel uptime"
+  - "Last configuration"
+  - "Current configuration"
+  - "holdtime"
+  - "Dead time"
+  - "Up for"

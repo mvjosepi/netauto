@@ -4,6 +4,19 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
+## [v1.3.0] - 2026-06-05
+### Added
+- `pre_check.py` — captures pre-change snapshots per device
+- `post_check.py` — captures post-change snapshots and validates against pre
+- `commands/general.yml` — general validation command set
+- `commands/upgrade.yml` — upgrade validation command set
+- `commands/routing.yml` — routing change validation command set
+- Noise filtering via `ignore_patterns` in command YAML files
+- LAB PASSED / LAB FAILED result per device and overall
+- Timestamped validation reports saved to snapshots/
+
+---
+
 ## [v1.2.0] - 2026-05-30
 ### Added
 - `netconf_query.py` — NETCONF support via ncclient + YANG
@@ -12,7 +25,7 @@ All notable changes to NetAuto will be documented in this file.
   - EDIT-CONFIG interface description write operation
   - 275+ YANG models discovered
 - `ncclient` added to dependencies
-- Completes the automation trilogy: SSH → RESTCONF → NETCONF
+- Completes the automation trilogy: SSH > RESTCONF > NETCONF
 
 ---
 

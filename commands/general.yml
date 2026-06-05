@@ -1,0 +1,15 @@
+description: "General validation — suitable for most changes"
+commands:
+  - show version
+  - show ip interface brief
+  - show ip route summary
+  - show cdp neighbors
+
+ignore_patterns:
+  - "uptime is"
+  - "Uptime for this"
+  - "Kernel uptime"
+  - "Last configuration"
+  - "Current configuration"
+  - "holdtime"
+  - "n9k("

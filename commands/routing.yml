@@ -1,0 +1,13 @@
+description: "Pre/Post validation for routing changes"
+commands:
+  - show ip route summary
+  - show ip ospf neighbor
+  - show ip bgp summary
+  - show ip interface brief
+
+ignore_patterns:
+  - "uptime is"
+  - "Uptime for this"
+  - "Dead time"
+  - "Up for"
+  - "holdtime"
