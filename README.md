@@ -140,9 +140,10 @@ python scripts/pre_check.py commands/general.yml CHG001
 
 # After the change ended
 python scripts/post_check.py commands/general.yml CHG001
-```
 
----
+# Run and Open reports/dashboard.html in any browser
+python scripts/dashboard.py
+```
 
 ## Script Details
 
