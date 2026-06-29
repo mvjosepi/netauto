@@ -297,21 +297,6 @@ python scripts/pre_check.py commands/general.yml CHG001
 python scripts/post_check.py commands/general.yml CHG001
 ```
 
-### dashboard.py
-Generates a browser-ready HTML dashboard pulling live data from all
-devices. Light theme, responsive 2-column layout, auto-saved to
-`reports/dashboard.html`.
-
-Covers per device:
-- Software version, uptime, serial and last backup timestamp
-- Interface UP/DOWN summary with color-coded badges
-- Routing table summary
-- Change history from pre/post snapshots
-
-```bash
-python scripts/dashboard.py
-# Open reports/dashboard.html in any browser
-```
 ```
 ┌───────────────────────────────────────────────────────────────
 │  DEVICE    : CAT8KV
@@ -332,6 +317,21 @@ python scripts/dashboard.py
 =================================================================
 ```
 
+### dashboard.py
+Generates a browser-ready HTML dashboard pulling live data from all
+devices. Light theme, responsive 2-column layout, auto-saved to
+`reports/dashboard.html`.
+
+Covers per device:
+- Software version, uptime, serial and last backup timestamp
+- Interface UP/DOWN summary with color-coded badges
+- Routing table summary
+- Change history from pre/post snapshots
+
+```bash
+python scripts/dashboard.py
+# Run and Open reports/dashboard.html in any browser
+```
 ---
 
 ## Lab Environment
