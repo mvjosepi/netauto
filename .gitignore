@@ -6,3 +6,4 @@ __pycache__/
 .python-version
 nornir.log
 snapshots/
+reports/*.txt

@@ -17,6 +17,16 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
+## [v1.4.0] - 2026-06-29
+### Added
+- `dashboard.py` — HTML dashboard with light theme
+  - Device info (version, uptime, serial, last backup)
+  - Interface UP/DOWN summary with color-coded badges
+  - Routing summary per device
+  - Change history from pre/post snapshots
+  - Responsive 2-column grid layout
+  - Auto-saved to reports/dashboard.html
+
 ## [v1.2.0] - 2026-05-30
 ### Added
 - `netconf_query.py` — NETCONF support via ncclient + YANG
