@@ -57,9 +57,11 @@ netauto/
 │   └── netconf_query.py        ✅ NETCONF GET + EDIT-CONFIG via XML/YANG
 │   ├── pre_check.py            ✅ pre-change snapshot
 │   └── post_check.py           ✅ post-change validation + report
+│   └── dashboard.py            ✅ HTML dashboard generator
 ├── snapshots/                  ✅ pre/post snapshots and reports
 ├── backups/                    ✅ timestamped config snapshots
 └── reports/                    ✅ timestamped inventory reports
+    └── dashboard.html          ✅ browser-ready dashboard
 ```
 
 ---
@@ -294,6 +296,21 @@ python scripts/pre_check.py commands/general.yml CHG001
 python scripts/post_check.py commands/general.yml CHG001
 ```
 
+### dashboard.py
+Generates a browser-ready HTML dashboard pulling live data from all
+devices. Light theme, responsive 2-column layout, auto-saved to
+`reports/dashboard.html`.
+
+Covers per device:
+- Software version, uptime, serial and last backup timestamp
+- Interface UP/DOWN summary with color-coded badges
+- Routing table summary
+- Change history from pre/post snapshots
+
+```bash
+python scripts/dashboard.py
+# Open reports/dashboard.html in any browser
+```
 ```
 ┌───────────────────────────────────────────────────────────────
 │  DEVICE    : CAT8KV
