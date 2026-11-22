@@ -107,8 +107,8 @@ Edit `inventory/hosts.yml` with your device credentials:
 cat8kv:
   hostname: "10.10.20.48"
   port: 22
-  username: "developer"
-  password: "C1sco12345"
+  username: "your-username"
+  password: "your-password"
   groups:
     - cisco_iosxe
 
