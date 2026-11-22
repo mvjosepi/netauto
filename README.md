@@ -150,6 +150,12 @@ python scripts/post_check.py commands/general.yml CHG001
 
 # Run and Open reports/dashboard.html in any browser
 python scripts/dashboard.py
+
+# live, against the inventory
+python scripts/topology_discovery.py
+
+# offline, from saved captures (no lab needed)
+python scripts/topology_discovery.py --offline --samples samples/iol_xe --inventory inventory_cml.example
 ```
 
 ## Script Details
