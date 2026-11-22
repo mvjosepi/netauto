@@ -4,16 +4,26 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
-## [v1.3.0] - 2026-06-05
+## [v1.5.0] - 2026-11-22
 ### Added
-- `pre_check.py` — captures pre-change snapshots per device
-- `post_check.py` — captures post-change snapshots and validates against pre
-- `commands/general.yml` — general validation command set
-- `commands/upgrade.yml` — upgrade validation command set
-- `commands/routing.yml` — routing change validation command set
-- Noise filtering via `ignore_patterns` in command YAML files
-- LAB PASSED / LAB FAILED result per device and overall
-- Timestamped validation reports saved to snapshots/
+- `topology_discovery.py` — read-only topology discovery via CDP + LLDP (IOS XE, NX-OS)
+  - Builds a networkx MultiGraph: parallel links preserved, CDP/LLDP duplicates merged
+  - Neighbors not in the inventory are kept as boundary nodes
+  - Shared segments (an interface seeing several neighbors) are inferred and drawn as a `segment-N` node
+  - Exports yEd-native GraphML (`topologies/topology_latest.graphml`) plus JSON snapshots in `topologies/history/`
+  - `--offline --samples DIR` runs from saved CLI output, no lab needed
+- `topology_diff.py` — compares two snapshots: new/gone devices, new/missing links, new/gone boundary nodes
+  - Exit codes: 0 no change, 1 changes, 2 different labs
+- `capture_samples.py` — saves raw `show cdp/lldp neighbors detail` per device
+- `yed_export.py` — circular layout, interface labels on every link, boundary nodes in gray dashed
+- `samples/iol_xe/` — real IOS XE captures (CML IOL); `inventory_cml.example/` — template inventory
+
+### Validated
+- IOS XE: CML IOL lab (2 routers, 2 switches), CDP + LLDP
+- NX-OS: virtual-chassis samples only
+
+### Not included (planned)
+- Recursive discovery, Draw.io export, Linux host discovery
 
 ---
 
@@ -26,6 +36,19 @@ All notable changes to NetAuto will be documented in this file.
   - Change history from pre/post snapshots
   - Responsive 2-column grid layout
   - Auto-saved to reports/dashboard.html
+
+## [v1.3.0] - 2026-06-05
+### Added
+- `pre_check.py` — captures pre-change snapshots per device
+- `post_check.py` — captures post-change snapshots and validates against pre
+- `commands/general.yml` — general validation command set
+- `commands/upgrade.yml` — upgrade validation command set
+- `commands/routing.yml` — routing change validation command set
+- Noise filtering via `ignore_patterns` in command YAML files
+- LAB PASSED / LAB FAILED result per device and overall
+- Timestamped validation reports saved to snapshots/
+
+---
 
 ## [v1.2.0] - 2026-05-30
 ### Added

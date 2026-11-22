@@ -53,11 +53,18 @@ netauto/
 │   ├── change_detect.py        ✅ diff-based change detection
 │   ├── push_change.py          ✅ config push
 │   ├── inventory_report.py     ✅ full inventory report
-│   └── restconf_interfaces.py  ✅ RESTCONF GET + PATCH via API
-│   └── netconf_query.py        ✅ NETCONF GET + EDIT-CONFIG via XML/YANG
+│   ├── restconf_interfaces.py  ✅ RESTCONF GET + PATCH via API
+│   ├── netconf_query.py        ✅ NETCONF GET + EDIT-CONFIG via XML/YANG
 │   ├── pre_check.py            ✅ pre-change snapshot
-│   └── post_check.py           ✅ post-change validation + report
-│   └── dashboard.py            ✅ HTML dashboard generator
+│   ├── post_check.py           ✅ post-change validation + report
+│   ├── dashboard.py            ✅ HTML dashboard generator
+│   ├── topology_discovery.py   ✅ CDP/LLDP discovery -> graph -> yEd
+│   ├── topology_diff.py        ✅ snapshot-to-snapshot topology diff
+│   ├── capture_samples.py      ✅ save raw CDP/LLDP output
+│   └── yed_export.py           ✅ GraphML export (yEd)
+├── inventory_cml.example/      ✅ template inventory (CML lab)
+├── samples/                    ✅ real + synthetic CDP/LLDP captures
+├── topologies/                 ✅ GraphML + JSON snapshots (not versioned)
 ├── snapshots/                  ✅ pre/post snapshots and reports
 ├── backups/                    ✅ timestamped config snapshots
 └── reports/                    ✅ timestamped inventory reports
@@ -332,6 +339,39 @@ Covers per device:
 python scripts/dashboard.py
 # Run and Open reports/dashboard.html in any browser
 ```
+### topology_discovery.py + topology_diff.py
+
+Read-only topology discovery. Collects `show cdp neighbors detail` and `show lldp neighbors detail`, builds a graph and exports it to [yEd](https://www.yworks.com/products/yed).
+
+```bash
+# live, against the inventory
+python scripts/topology_discovery.py
+
+# offline, from saved captures (no lab needed)
+python scripts/topology_discovery.py --offline --samples samples/iol_xe --inventory inventory_cml.example
+
+# save raw CLI output for later offline runs
+python scripts/capture_samples.py --inventory inventory_cml --out samples/mylab
+
+# compare the last two snapshots (or pass two JSON files)
+python scripts/topology_diff.py
+```
+
+```
+  R1         cdp: ok          (5 entries)  lldp: ok          (2 entries)
+  ...
+  Nodes: 5  Links: 7
+  R1 [Eth0/0] <-> [Eth0/2] SW1   (cdp,lldp)
+  R1 [Eth0/1] <-> [Eth0/1] R2   (cdp,lldp)
+  R1 [Eth0/2] <-> [] segment-1   (inferred)
+```
+
+- Devices outside the inventory appear as gray dashed boundary nodes.
+- An interface that sees several neighbors becomes an inferred `segment-N` node (CDP crosses unmanaged switches, LLDP does not).
+- In yEd: open `topologies/topology_latest.graphml` and use Layout > Hierarchical.
+- `topology_diff.py` exit codes: 0 no change, 1 changes, 2 different labs. A device that did not answer the capture shows its links as missing.
+- Validated on IOS XE (CML IOL) and NX-OS virtual-chassis samples. Not yet covered: recursive discovery, Draw.io export, Linux hosts.
+
 ---
 
 ## Lab Environment
