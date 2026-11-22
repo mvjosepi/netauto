@@ -1,0 +1,7 @@
+Chassis id: 5254.0012.3456
+Port id: Gi2
+Local Port id: Eth1/3
+Port Description: GigabitEthernet2
+System Name: cat8kv
+System Description: Cisco IOS XE Software
+Management Address: 10.10.20.48

@@ -5,89 +5,170 @@ import os
 import yaml
 import networkx as nx
 from datetime import datetime
+from yed_export import export_yed
 
 TOPO_DIR = "topologies"
-SAMPLES_DIR = "samples"
+SKIP = {"iosxrv"}  # ssh-dss not supported by Paramiko 4.x
+IF_PREFIX = (("TenGigabitEthernet", "Te"), ("GigabitEthernet", "Gi"),
+             ("FastEthernet", "Fa"), ("Ethernet", "Eth"), ("Loopback", "Lo"))
+CMDS = (("cdp", "show cdp neighbors detail"), ("lldp", "show lldp neighbors detail"))
+
+
+def norm_intf(name):
+    """GigabitEthernet2 / Gi2 -> Gi2 ; Ethernet1/3 / Eth1/3 -> Eth1/3"""
+    name = name.strip()
+    for long, abbr in IF_PREFIX:
+        if name.startswith(long):
+            return abbr + name[len(long):]
+    return name
 
 
 def load_inventory():
-    """Read hosts.yml: returns {name: ip}"""
     with open("inventory/hosts.yml") as f:
         data = yaml.safe_load(f)
-    return {name: h["hostname"] for name, h in data.items()}
+    return {n: h["hostname"] for n, h in data.items() if n not in SKIP}
 
 
 def parse_cdp_detail(output):
-    """Parse 'show cdp neighbors detail' (IOS XE / NX-OS) into a list of links."""
     links = []
     for block in re.split(r"-{10,}", output):
         dev = re.search(r"Device ID:\s*(\S+)", block)
-        if not dev:
+        intf = re.search(
+            r"Interface:\s*([^,\n]+),\s*Port ID \(outgoing port\):\s*(\S+)", block)
+        if not dev or not intf:
             continue
         sysname = re.search(r"System Name:\s*(\S+)", block)
         ip = re.search(r"(?:IP address|IPv4 Address):\s*(\S+)", block)
         plat = re.search(r"Platform:\s*([^,\n]+)", block)
-        intf = re.search(
-            r"Interface:\s*([^,\n]+),\s*Port ID \(outgoing port\):\s*(\S+)", block
-        )
-        if not intf:
-            continue
-        # NX-OS Device ID carries the serial, e.g. n9k(9GFWC97W2TQ): prefer System Name
         name = sysname.group(1) if sysname else dev.group(1).split("(")[0]
         links.append({
+            "proto": "cdp",
             "remote_name": name.split(".")[0],
             "remote_ip": ip.group(1) if ip else "",
             "platform": plat.group(1).strip() if plat else "",
-            "local_intf": intf.group(1).strip(),
-            "remote_intf": intf.group(2).strip(),
+            "local_intf": norm_intf(intf.group(1)),
+            "remote_intf": norm_intf(intf.group(2)),
         })
     return links
 
 
+def parse_lldp_detail(output):
+    """UNVALIDATED against real devices: written from known IOS XE / NX-OS formats."""
+    links = []
+    blocks = []
+    for chunk in re.split(r"-{10,}", output):
+        # NX-OS prints entries back to back, each starting at 'Chassis id:'
+        blocks += re.split(r"(?=^\s*Chassis id:)", chunk, flags=re.M) \
+            if chunk.count("Chassis id:") > 1 else [chunk]
+    for block in blocks:
+        local = re.search(r"^\s*(?:Local Intf|Local Port id):\s*(\S+)", block, re.M)
+        remote = re.search(r"^\s*Port id:\s*(\S+)", block, re.M)
+        if not local or not remote:
+            continue
+        sysname = re.search(r"^\s*System Name:\s*(\S+)", block, re.M)
+        chassis = re.search(r"^\s*Chassis id:\s*(\S+)", block, re.M)
+        ip = re.search(r"(?:Management Address(?:es)?:\s*(?:\n\s*IP:)?|^\s*IP:)\s*(\d+\.\d+\.\d+\.\d+)",
+                       block, re.M)
+        name = sysname.group(1) if sysname else (chassis.group(1) if chassis else "unknown")
+        links.append({
+            "proto": "lldp",
+            "remote_name": name.split(".")[0],
+            "remote_ip": ip.group(1) if ip else "",
+            "platform": "",
+            "local_intf": norm_intf(local.group(1)),
+            "remote_intf": norm_intf(remote.group(1)),
+        })
+    return links
+
+
+def proto_status(output):
+    if not output or not output.strip():
+        return "empty"
+    if "Invalid command" in output or output.startswith("ERROR:"):
+        return "unavailable"
+    return "ok"
+
+
 def resolve_neighbor(link, inventory):
-    """Match a neighbor to an inventory host by mgmt IP first, then by name."""
-    ip_to_name = {ip: name for name, ip in inventory.items()}
+    ip_to_name = {ip: n for n, ip in inventory.items()}
     if link["remote_ip"] in ip_to_name:
-        return ip_to_name[link["remote_ip"]], False
-    for name in inventory:
-        if name == link["remote_name"]:
-            return name, False
-    return link["remote_name"], True  # boundary node
+        return ip_to_name[link["remote_ip"]]
+    if link["remote_name"] in inventory:
+        return link["remote_name"]
+    return link["remote_name"]  # boundary node
 
 
-def build_graph(raw_by_host, inventory):
-    g = nx.Graph()
+def build_graph(raw, inventory):
+    g = nx.MultiGraph()
+    g.graph["self_links_ignored"] = 0
     for host, ip in inventory.items():
         g.add_node(host, ip=ip, boundary="false")
-    for host, output in raw_by_host.items():
-        for link in parse_cdp_detail(output):
-            remote, boundary = resolve_neighbor(link, inventory)
+
+    for host, protos in raw.items():
+        if host not in inventory:
+            continue
+        parsed = {"cdp": [], "lldp": []}
+        status = {}
+        for proto, text in protos.items():
+            status[proto] = proto_status(text)
+            if status[proto] == "ok":
+                parsed[proto] = (parse_cdp_detail if proto == "cdp"
+                                 else parse_lldp_detail)(text)
+        print(f"  {host:<10} cdp: {status.get('cdp', '-'):<12}"
+              f"({len(parsed['cdp'])} entries)  lldp: {status.get('lldp', '-'):<12}"
+              f"({len(parsed['lldp'])} entries)")
+
+        for link in parsed["cdp"] + parsed["lldp"]:
+            remote = resolve_neighbor(link, inventory)
+            if remote == host:  # virtual-chassis artifact, not a real link
+                g.graph["self_links_ignored"] += 1
+                continue
             if remote not in g:
                 g.add_node(remote, ip=link["remote_ip"],
                            platform=link["platform"], boundary="true")
             a, b = sorted([host, remote])
-            if host == a:
-                src_i, dst_i = link["local_intf"], link["remote_intf"]
+            src, dst = ((link["local_intf"], link["remote_intf"]) if host == a
+                        else (link["remote_intf"], link["local_intf"]))
+            key = f"{a}:{src}|{b}:{dst}"
+            if g.has_edge(a, b, key):  # same link already seen (other end / other protocol)
+                seen = g[a][b][key]["seen_by"].split(",")
+                if link["proto"] not in seen:
+                    g[a][b][key]["seen_by"] = ",".join(seen + [link["proto"]])
             else:
-                src_i, dst_i = link["remote_intf"], link["local_intf"]
-            g.add_edge(a, b, src_intf=src_i, dst_intf=dst_i)
+                g.add_edge(a, b, key=key, src_intf=src, dst_intf=dst,
+                           seen_by=link["proto"])
     return g
 
 
 def save_outputs(g):
-    os.makedirs(TOPO_DIR, exist_ok=True)
+    hist = f"{TOPO_DIR}/history"
+    os.makedirs(hist, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    graphml = f"{TOPO_DIR}/topology_{ts}.graphml"
-    snap = f"{TOPO_DIR}/topology_{ts}.json"
-    nx.write_graphml(g, graphml)
+    data = nx.node_link_data(g, edges="links")
+    graphml = f"{TOPO_DIR}/topology_latest.graphml"
+    export_yed(g, graphml)
+    with open(f"{TOPO_DIR}/topology_latest.json", "w") as f:
+        json.dump(data, f, indent=2)
+    snap = f"{hist}/topology_{ts}.json"
     with open(snap, "w") as f:
-        json.dump(nx.node_link_data(g, edges="links"), f, indent=2)
+        json.dump(data, f, indent=2)
     return graphml, snap
 
 
 def collect_live(inventory):
     from nornir import InitNornir
     from nornir_netmiko.tasks import netmiko_send_command
+
+    def get_neighbors(task):
+        out = {}
+        for proto, cmd in CMDS:
+            try:
+                out[proto] = task.run(task=netmiko_send_command,
+                                      command_string=cmd)[0].result
+            except Exception as e:
+                out[proto] = f"ERROR: {e}"
+        return out
+
     nr = InitNornir(
         inventory={"plugin": "SimpleInventory", "options": {
             "host_file": "inventory/hosts.yml",
@@ -96,30 +177,32 @@ def collect_live(inventory):
         runner={"plugin": "threaded", "options": {"num_workers": 5}},
     )
     nr = nr.filter(filter_func=lambda h: h.name in inventory)
-    res = nr.run(task=netmiko_send_command,
-                 command_string="show cdp neighbors detail")
+    res = nr.run(task=get_neighbors)
     return {h: r[0].result for h, r in res.items() if not r[0].failed}
 
 
-def collect_offline():
+def collect_offline(inventory, sdir):
     raw = {}
-    for fn in os.listdir(SAMPLES_DIR):
-        if fn.endswith("_cdp.txt"):
-            with open(f"{SAMPLES_DIR}/{fn}") as f:
-                raw[fn.replace("_cdp.txt", "")] = f.read()
+    for host in inventory:
+        for proto, _ in CMDS:
+            path = f"{sdir}/{host}_{proto}.txt"
+            if os.path.exists(path):
+                raw.setdefault(host, {})[proto] = open(path).read()
     return raw
 
 
 if __name__ == "__main__":
     offline = "--offline" in sys.argv
+    sdir = sys.argv[sys.argv.index("--samples") + 1] if "--samples" in sys.argv else "samples"
     inventory = load_inventory()
-    print(f"\n🔍 Topology discovery ({'offline samples' if offline else 'live'})")
-    raw = collect_offline() if offline else collect_live(inventory)
+    print(f"\n🔍 Topology discovery ({'offline: ' + sdir if offline else 'live'})\n")
+    raw = collect_offline(inventory, sdir) if offline else collect_live(inventory)
     g = build_graph(raw, inventory)
     graphml, snap = save_outputs(g)
     boundary = [n for n, d in g.nodes(data=True) if d.get("boundary") == "true"]
-    print(f"  Nodes: {g.number_of_nodes()}  Links: {g.number_of_edges()}")
+    print(f"\n  Nodes: {g.number_of_nodes()}  Links: {g.number_of_edges()}")
     print(f"  Boundary nodes: {boundary or 'none'}")
+    print(f"  Self-links ignored: {g.graph['self_links_ignored']}")
     for a, b, d in g.edges(data=True):
-        print(f"  {a} [{d['src_intf']}] <-> [{d['dst_intf']}] {b}")
+        print(f"  {a} [{d['src_intf']}] <-> [{d['dst_intf']}] {b}   ({d['seen_by']})")
     print(f"  💾 {graphml}\n  💾 {snap}")

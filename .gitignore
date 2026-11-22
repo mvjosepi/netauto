@@ -8,3 +8,5 @@ nornir.log
 snapshots/
 reports/*.txt
 topologies/
+samples/*
+!samples/synthetic/
