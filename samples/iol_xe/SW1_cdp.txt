@@ -1,0 +1,83 @@
+-------------------------
+Device ID: SW2.virl.info
+Entry address(es): 
+  IP address: 10.10.20.174
+Platform: Linux Unix,  Capabilities: Router Switch IGMP 
+Interface: Ethernet0/3,  Port ID (outgoing port): Ethernet0/3
+Holdtime : 153 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX_L2-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:06 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0230
+VTP Management Domain: 'virl.lab'
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.174
+
+-------------------------
+Device ID: R1.virl.info
+Entry address(es): 
+  IP address: 10.10.10.100
+Platform: Linux Unix,  Capabilities: Router 
+Interface: Ethernet0/2,  Port ID (outgoing port): Ethernet0/0
+Holdtime : 166 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:07 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0300
+Duplex: full
+Management address(es): 
+  IP address: 10.10.10.100
+
+-------------------------
+Device ID: R1.virl.info
+Entry address(es): 
+  IP address: 10.10.20.171
+Platform: Linux Unix,  Capabilities: Router 
+Interface: Ethernet0/3,  Port ID (outgoing port): Ethernet0/2
+Holdtime : 153 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:07 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0320
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.171
+
+-------------------------
+Device ID: R2.virl.info
+Entry address(es): 
+  IP address: 10.10.20.172
+Platform: Linux Unix,  Capabilities: Router 
+Interface: Ethernet0/3,  Port ID (outgoing port): Ethernet0/2
+Holdtime : 159 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:07 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0420
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.172
+
+
+Total cdp entries displayed : 4

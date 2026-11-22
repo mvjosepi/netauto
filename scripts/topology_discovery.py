@@ -20,11 +20,11 @@ def norm_intf(name):
     for long, abbr in IF_PREFIX:
         if name.startswith(long):
             return abbr + name[len(long):]
-    return name
+    return re.sub(r"^Et(?=\d)", "Eth", name)
 
 
-def load_inventory():
-    with open("inventory/hosts.yml") as f:
+def load_inventory(inv_dir="inventory"):
+    with open(f"{inv_dir}/hosts.yml") as f:
         data = yaml.safe_load(f)
     return {n: h["hostname"] for n, h in data.items() if n not in SKIP}
 
@@ -84,7 +84,7 @@ def parse_lldp_detail(output):
 def proto_status(output):
     if not output or not output.strip():
         return "empty"
-    if "Invalid command" in output or output.startswith("ERROR:"):
+    if "Invalid command" in output or "not enabled" in output.lower() or output.startswith("ERROR:"):
         return "unavailable"
     return "ok"
 
@@ -95,7 +95,8 @@ def resolve_neighbor(link, inventory):
         return ip_to_name[link["remote_ip"]]
     if link["remote_name"] in inventory:
         return link["remote_name"]
-    return link["remote_name"]  # boundary node
+    by_lower = {n.lower(): n for n in inventory}
+    return by_lower.get(link["remote_name"].lower(), link["remote_name"])  # else boundary node
 
 
 def build_graph(raw, inventory):
@@ -140,6 +141,52 @@ def build_graph(raw, inventory):
     return g
 
 
+def collapse_segments(g):
+    """An interface that sees >1 neighbor sits on a shared (multi-access) segment.
+    Replace those pairwise links with one inferred 'segment' node."""
+    def ends(u, v, d):
+        a, b = sorted((u, v))
+        return (a, d["src_intf"]), (b, d["dst_intf"])
+
+    count = {}
+    for u, v, k, d in g.edges(keys=True, data=True):
+        for end in ends(u, v, d):
+            count[end] = count.get(end, 0) + 1
+    shared = {e for e, n in count.items() if n > 1}
+
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    seg_edges = []
+    for u, v, k, d in list(g.edges(keys=True, data=True)):
+        e1, e2 = ends(u, v, d)
+        if e1 in shared or e2 in shared:
+            parent[find(e1)] = find(e2)
+            seg_edges.append((u, v, k, e1, e2))
+    for u, v, k, _, _ in seg_edges:
+        g.remove_edge(u, v, key=k)
+
+    groups = {}
+    for _, _, _, e1, e2 in seg_edges:
+        for end in (e1, e2):
+            groups.setdefault(find(end), set()).add(end)
+    for i, members in enumerate(sorted(groups.values(), key=sorted), 1):
+        seg = f"segment-{i}"
+        g.add_node(seg, kind="segment", boundary="false", ip="", platform="shared segment")
+        for dev, intf in sorted(members):
+            a, b = sorted((dev, seg))
+            src, dst = (intf, "") if dev == a else ("", intf)
+            g.add_edge(a, b, key=f"{a}:{src}|{b}:{dst}",
+                       src_intf=src, dst_intf=dst, seen_by="inferred")
+    return g
+
+
 def save_outputs(g):
     hist = f"{TOPO_DIR}/history"
     os.makedirs(hist, exist_ok=True)
@@ -155,7 +202,7 @@ def save_outputs(g):
     return graphml, snap
 
 
-def collect_live(inventory):
+def collect_live(inventory, inv_dir="inventory"):
     from nornir import InitNornir
     from nornir_netmiko.tasks import netmiko_send_command
 
@@ -171,9 +218,9 @@ def collect_live(inventory):
 
     nr = InitNornir(
         inventory={"plugin": "SimpleInventory", "options": {
-            "host_file": "inventory/hosts.yml",
-            "group_file": "inventory/groups.yml",
-            "defaults_file": "inventory/defaults.yml"}},
+            "host_file": f"{inv_dir}/hosts.yml",
+            "group_file": f"{inv_dir}/groups.yml",
+            "defaults_file": f"{inv_dir}/defaults.yml"}},
         runner={"plugin": "threaded", "options": {"num_workers": 5}},
     )
     nr = nr.filter(filter_func=lambda h: h.name in inventory)
@@ -194,10 +241,11 @@ def collect_offline(inventory, sdir):
 if __name__ == "__main__":
     offline = "--offline" in sys.argv
     sdir = sys.argv[sys.argv.index("--samples") + 1] if "--samples" in sys.argv else "samples"
-    inventory = load_inventory()
+    inv_dir = sys.argv[sys.argv.index("--inventory") + 1] if "--inventory" in sys.argv else "inventory"
+    inventory = load_inventory(inv_dir)
     print(f"\n🔍 Topology discovery ({'offline: ' + sdir if offline else 'live'})\n")
-    raw = collect_offline(inventory, sdir) if offline else collect_live(inventory)
-    g = build_graph(raw, inventory)
+    raw = collect_offline(inventory, sdir) if offline else collect_live(inventory, inv_dir)
+    g = collapse_segments(build_graph(raw, inventory))
     graphml, snap = save_outputs(g)
     boundary = [n for n, d in g.nodes(data=True) if d.get("boundary") == "true"]
     print(f"\n  Nodes: {g.number_of_nodes()}  Links: {g.number_of_edges()}")

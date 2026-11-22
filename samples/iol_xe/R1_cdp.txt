@@ -1,0 +1,106 @@
+-------------------------
+Device ID: SW2.virl.info
+Entry address(es): 
+  IP address: 10.10.20.174
+Platform: Linux Unix,  Capabilities: Router Switch IGMP 
+Interface: Ethernet0/2,  Port ID (outgoing port): Ethernet0/3
+Holdtime : 167 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX_L2-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:06 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0230
+VTP Management Domain: 'virl.lab'
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.174
+
+-------------------------
+Device ID: SW1.virl.info
+Entry address(es): 
+  IP address: 10.10.20.173
+Platform: Linux Unix,  Capabilities: Router Switch IGMP 
+Interface: Ethernet0/0,  Port ID (outgoing port): Ethernet0/2
+Holdtime : 148 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX_L2-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:06 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0120
+VTP Management Domain: 'virl.lab'
+Native VLAN: 10
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.173
+
+-------------------------
+Device ID: SW1.virl.info
+Entry address(es): 
+  IP address: 10.10.20.173
+Platform: Linux Unix,  Capabilities: Router Switch IGMP 
+Interface: Ethernet0/2,  Port ID (outgoing port): Ethernet0/3
+Holdtime : 152 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX_L2-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:06 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0130
+VTP Management Domain: 'virl.lab'
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.173
+
+-------------------------
+Device ID: R2.virl.info
+Entry address(es): 
+  IP address: 1.1.1.2
+Platform: Linux Unix,  Capabilities: Router 
+Interface: Ethernet0/1,  Port ID (outgoing port): Ethernet0/1
+Holdtime : 177 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:07 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0410
+Duplex: full
+Management address(es): 
+  IP address: 1.1.1.2
+
+-------------------------
+Device ID: R2.virl.info
+Entry address(es): 
+  IP address: 10.10.20.172
+Platform: Linux Unix,  Capabilities: Router 
+Interface: Ethernet0/2,  Port ID (outgoing port): Ethernet0/2
+Holdtime : 173 sec
+
+Version :
+Cisco IOS Software [IOSXE], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version 17.15.1, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2024 by Cisco Systems, Inc.
+Compiled Sun 11-Aug-24 22:07 by mcpre
+
+advertisement version: 2
+Peer Source MAC: aabb.cc00.0420
+Duplex: full
+Management address(es): 
+  IP address: 10.10.20.172
+
+
+Total cdp entries displayed : 5
