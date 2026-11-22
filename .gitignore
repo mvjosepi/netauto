@@ -7,3 +7,4 @@ __pycache__/
 nornir.log
 snapshots/
 reports/*.txt
+topologies/
