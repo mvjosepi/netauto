@@ -4,6 +4,13 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
+## [v1.5.2] - 2026-11-22
+### Added
+- Optional `data: {role: router|switch}` per host in the inventory; it overrides the name-based icon guess in the yEd export
+- `role` is saved in the topology snapshots
+
+---
+
 ## [v1.5.1] - 2026-11-22
 ### Added
 - Router and switch icons in the yEd export (generic SVG icons embedded in the GraphML, file stays self-contained)

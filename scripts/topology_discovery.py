@@ -23,9 +23,17 @@ def norm_intf(name):
     return re.sub(r"^Et(?=\d)", "Eth", name)
 
 
+ROLES = {}  # host -> 'router' | 'switch', filled by load_inventory from data.role
+
+
 def load_inventory(inv_dir="inventory"):
     with open(f"{inv_dir}/hosts.yml") as f:
         data = yaml.safe_load(f)
+    ROLES.clear()
+    for n, h in data.items():
+        role = str((h.get("data") or {}).get("role", "")).strip().lower()
+        if n not in SKIP and role in ("router", "switch"):
+            ROLES[n] = role
     return {n: h["hostname"] for n, h in data.items() if n not in SKIP}
 
 
@@ -103,7 +111,7 @@ def build_graph(raw, inventory):
     g = nx.MultiGraph()
     g.graph["self_links_ignored"] = 0
     for host, ip in inventory.items():
-        g.add_node(host, ip=ip, boundary="false")
+        g.add_node(host, ip=ip, boundary="false", role=ROLES.get(host, ""))
 
     for host, protos in raw.items():
         if host not in inventory:
