@@ -4,6 +4,18 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
+## [v1.5.1] - 2026-11-22
+### Added
+- Router and switch icons in the yEd export (generic SVG icons embedded in the GraphML, file stays self-contained)
+- `role` node attribute (`router` / `switch`); when not set, the role is guessed from the device name (R1, RTR-edge, SW1, switch-2...)
+
+### Notes
+- CDP/LLDP capabilities are not used to tell routers from switches: IOL Layer 2 images advertise `Router Switch` (CDP) and `B,R` (LLDP)
+- Devices without a recognizable name keep the blue box; boundary nodes and shared segments are unchanged
+- `export_yed(g, path, icons=False)` restores the plain shapes
+
+---
+
 ## [v1.5.0] - 2026-11-22
 ### Added
 - `topology_discovery.py` — read-only topology discovery via CDP + LLDP (IOS XE, NX-OS)

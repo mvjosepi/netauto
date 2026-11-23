@@ -1,6 +1,6 @@
 # NetAuto - Multi-Vendor Network Automation Toolkit
 
-![Version](https://img.shields.io/badge/version-v1.5.0-blue)
+![Version](https://img.shields.io/badge/version-v1.5.1-blue)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-IOS%20XE%20%7C%20NX--OS-lightgrey)
@@ -349,6 +349,8 @@ python scripts/dashboard.py
 
 Read-only topology discovery. Collects `show cdp neighbors detail` and `show lldp neighbors detail`, builds a graph and exports it to [yEd](https://www.yworks.com/products/yed).
 
+![Topology discovered from CDP/LLDP, exported to yEd](assets/topology_discovery.png)
+
 ```bash
 # live, against the inventory
 python scripts/topology_discovery.py
@@ -372,6 +374,7 @@ python scripts/topology_diff.py
   R1 [Eth0/2] <-> [] segment-1   (inferred)
 ```
 
+- Routers and switches get their own icons (role guessed from the device name, or set with a `role` attribute); unknown devices keep the blue box.
 - Devices outside the inventory appear as gray dashed boundary nodes.
 - An interface that sees several neighbors becomes an inferred `segment-N` node (CDP crosses unmanaged switches, LLDP does not).
 - In yEd: open `topologies/topology_latest.graphml` and use Layout > Hierarchical.
