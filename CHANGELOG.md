@@ -4,6 +4,19 @@ All notable changes to NetAuto will be documented in this file.
 
 ---
 
+## [v1.5.3] - 2026-11-22
+### Added
+- `topology_discovery.py --workers N` (default 5) and `--timeout S` (default 20) for live collection
+- Devices that cannot be collected (unreachable, bad credentials, timeout) are reported as `FAILED` with the reason, instead of looking like "CDP/LLDP disabled"
+- Failed devices are stored in the snapshot (`graph.failed`); exit code 3 on partial collection (live mode)
+- `topology_diff.py` marks changes that involve a device that was not collected as uncertain
+
+### Changed
+- An unreachable device is tried once, not once per command
+- Nornir tracebacks no longer flood the terminal
+
+---
+
 ## [v1.5.2] - 2026-11-22
 ### Added
 - Optional `data: {role: router|switch}` per host in the inventory; it overrides the name-based icon guess in the yEd export

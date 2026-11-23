@@ -1,6 +1,6 @@
 # NetAuto - Multi-Vendor Network Automation Toolkit
 
-![Version](https://img.shields.io/badge/version-v1.5.2-blue)
+![Version](https://img.shields.io/badge/version-v1.5.3-blue)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-IOS%20XE%20%7C%20NX--OS-lightgrey)
@@ -378,7 +378,8 @@ python scripts/topology_diff.py
 - Devices outside the inventory appear as gray dashed boundary nodes.
 - An interface that sees several neighbors becomes an inferred `segment-N` node (CDP crosses unmanaged switches, LLDP does not).
 - In yEd: open `topologies/topology_latest.graphml` and use Layout > Hierarchical.
-- `topology_diff.py` exit codes: 0 no change, 1 changes, 2 different labs. A device that did not answer the capture shows its links as missing.
+- Live collection options: `--workers N` (default 5) and `--timeout S` (default 20). Devices that cannot be collected (unreachable, bad credentials) are reported as FAILED with the reason and stored in the snapshot; the script exits with code 3 (partial collection).
+- `topology_diff.py` exit codes: 0 no change, 1 changes, 2 different labs. Changes involving a device that was not collected are marked `[uncertain]`.
 - Validated on IOS XE (CML IOL) and NX-OS virtual-chassis samples. Not yet covered: recursive discovery, Draw.io export, Linux hosts.
 
 ---

@@ -210,18 +210,46 @@ def save_outputs(g):
     return graphml, snap
 
 
-def collect_live(inventory, inv_dir="inventory"):
+CONN_ERRORS = ("NetmikoTimeoutException", "NetmikoAuthenticationException",
+               "ConnectionException", "SSHException")
+
+
+def _explain(e):
+    """(short reason, is_connection_error). Nornir wraps the real exception in a subtask error."""
+    inner = None
+    res = getattr(e, "result", None)
+    if res is not None:
+        for item in (res if isinstance(res, list) else [res]):
+            if getattr(item, "exception", None):
+                inner = item.exception
+                break
+    err = inner or e
+    name = type(err).__name__
+    text = " ".join(str(err).split())[:100]
+    # OSError covers refused / unreachable / DNS failures (Telnet raises these directly)
+    return f"{name}: {text}", name in CONN_ERRORS or isinstance(err, OSError)
+
+
+def collect_live(inventory, inv_dir="inventory", workers=5, timeout=20):
     from nornir import InitNornir
+    from nornir.core.inventory import ConnectionOptions
     from nornir_netmiko.tasks import netmiko_send_command
+    import logging
+    logging.getLogger("nornir").setLevel(logging.CRITICAL)  # failures are reported by this script
 
     def get_neighbors(task):
         out = {}
         for proto, cmd in CMDS:
             try:
-                out[proto] = task.run(task=netmiko_send_command,
-                                      command_string=cmd)[0].result
+                out[proto] = task.run(task=netmiko_send_command, command_string=cmd,
+                                      read_timeout=timeout)[0].result
             except Exception as e:
-                out[proto] = f"ERROR: {e}"
+                reason, conn = _explain(e)
+                out[proto] = f"ERROR: {reason}"
+                if conn:  # unreachable / bad credentials: do not try the next command
+                    for p, _ in CMDS:
+                        out.setdefault(p, f"ERROR: {reason}")
+                    break
         return out
 
     nr = InitNornir(
@@ -229,11 +257,27 @@ def collect_live(inventory, inv_dir="inventory"):
             "host_file": f"{inv_dir}/hosts.yml",
             "group_file": f"{inv_dir}/groups.yml",
             "defaults_file": f"{inv_dir}/defaults.yml"}},
-        runner={"plugin": "threaded", "options": {"num_workers": 5}},
+        runner={"plugin": "threaded", "options": {"num_workers": workers}},
     )
     nr = nr.filter(filter_func=lambda h: h.name in inventory)
+    for h in nr.inventory.hosts.values():  # connection timeouts, keeping any extras already set
+        extras = dict(h.get_connection_parameters("netmiko").extras or {})
+        for k in ("conn_timeout", "auth_timeout", "banner_timeout"):
+            extras.setdefault(k, timeout)
+        opts = h.connection_options.get("netmiko")
+        if opts is None:
+            opts = ConnectionOptions(extras={})
+            h.connection_options["netmiko"] = opts
+        opts.extras = extras
     res = nr.run(task=get_neighbors)
-    return {h: r[0].result for h, r in res.items() if not r[0].failed}
+    raw = {}
+    for host, r in res.items():
+        if r[0].failed:
+            raw[host] = {p: f"ERROR: {type(r[0].exception).__name__}: {r[0].exception}"[:140]
+                         for p, _ in CMDS}
+        else:
+            raw[host] = r[0].result
+    return raw
 
 
 def collect_offline(inventory, sdir):
@@ -246,14 +290,40 @@ def collect_offline(inventory, sdir):
     return raw
 
 
+def _opt(flag, default, cast=str):
+    return cast(sys.argv[sys.argv.index(flag) + 1]) if flag in sys.argv else default
+
+
+def collection_failures(raw, inventory):
+    """host -> reason, for devices that returned nothing usable (unreachable, auth, no data)."""
+    failed = {}
+    for host in inventory:
+        protos = raw.get(host)
+        if not protos:
+            failed[host] = "no data collected"
+            continue
+        errs = [v for v in protos.values() if isinstance(v, str) and v.startswith("ERROR:")]
+        if len(errs) == len(protos):
+            failed[host] = errs[0][len("ERROR:"):].strip()
+    return failed
+
+
 if __name__ == "__main__":
     offline = "--offline" in sys.argv
-    sdir = sys.argv[sys.argv.index("--samples") + 1] if "--samples" in sys.argv else "samples"
-    inv_dir = sys.argv[sys.argv.index("--inventory") + 1] if "--inventory" in sys.argv else "inventory"
+    sdir = _opt("--samples", "samples")
+    inv_dir = _opt("--inventory", "inventory")
+    workers = _opt("--workers", 5, int)
+    timeout = _opt("--timeout", 20, int)
     inventory = load_inventory(inv_dir)
     print(f"\n🔍 Topology discovery ({'offline: ' + sdir if offline else 'live'})\n")
-    raw = collect_offline(inventory, sdir) if offline else collect_live(inventory, inv_dir)
+    raw = (collect_offline(inventory, sdir) if offline
+           else collect_live(inventory, inv_dir, workers, timeout))
     g = collapse_segments(build_graph(raw, inventory))
+    failed = collection_failures(raw, inventory)
+    g.graph["failed"] = failed
+    for host in failed:
+        if host in g:
+            g.nodes[host]["collected"] = "false"
     graphml, snap = save_outputs(g)
     boundary = [n for n, d in g.nodes(data=True) if d.get("boundary") == "true"]
     print(f"\n  Nodes: {g.number_of_nodes()}  Links: {g.number_of_edges()}")
@@ -261,4 +331,11 @@ if __name__ == "__main__":
     print(f"  Self-links ignored: {g.graph['self_links_ignored']}")
     for a, b, d in g.edges(data=True):
         print(f"  {a} [{d['src_intf']}] <-> [{d['dst_intf']}] {b}   ({d['seen_by']})")
+    if failed:
+        print(f"\n  ⚠️  Collection FAILED for {len(failed)} device(s):")
+        for host, why in sorted(failed.items()):
+            print(f"     {host}: {why}")
+        print("     Links seen only by these devices are missing from the map.")
     print(f"  💾 {graphml}\n  💾 {snap}")
+    if failed and not offline:
+        sys.exit(3)  # partial collection (0 = ok)
