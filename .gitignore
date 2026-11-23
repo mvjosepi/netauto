@@ -12,3 +12,4 @@ samples/*
 !samples/synthetic/
 inventory_cml/
 !samples/iol_xe/
+inventory_prod/
